@@ -1,0 +1,6 @@
+@Expedientes.Api_HostAddress = http://localhost:5221
+
+GET {{Expedientes.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
