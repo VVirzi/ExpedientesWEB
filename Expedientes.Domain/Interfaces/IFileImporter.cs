@@ -7,9 +7,9 @@ using Expedientes.Domain.Entities;
 
 namespace Expedientes.Domain.Interfaces
 {
-    public interface IFileImporter
+    public interface IFileImporter<T>
     {
         bool CanHandle(string fileType);
-        List<ImportedInvoice> Import(Stream fileStream);    
+        List<T> Import(Stream fileStream);    
     }
 }
