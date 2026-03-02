@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Expedientes.Domain.Entities
+namespace Expedientes.Application.DTOs
 {
-    public class InvoiceMetadata
+    public class InvoiceMetadataDto
     {
         public string InvoiceNumber { get; set; }
         public string CAE { get; set; }

@@ -16,5 +16,18 @@ namespace Expedientes.Domain.Entities
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal Total => Quantity * UnitPrice;
+        private readonly List<ItemTraceability> _traceabilities = new();
+        public IReadOnlyCollection<ItemTraceability> Traceabilities => _traceabilities;
+
+        public void AddTraceability(string transactionId, string serie)
+        {
+            if (_traceabilities.Any(t => t.TransactionId == transactionId)) return;
+
+            _traceabilities.Add(new ItemTraceability
+            {
+                TransactionId = transactionId,
+                Serie = serie
+            });
+        }
     }
 }
