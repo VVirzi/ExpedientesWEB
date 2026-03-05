@@ -28,10 +28,14 @@ namespace Expedientes.Application.Mappers
         {
             return new InvoiceDto
             {
+                InvoiceType = invoice.InvoiceType,
                 InvoiceNumber = invoice.InvoiceNumber,
                 Date = invoice.Date,
                 RemitoNumber = invoice.RemitoNumber,
                 AffiliateNumber = invoice.AffiliateNumber,
+                AffiliateName = invoice.AffiliateName,
+                InvoiceFile = invoice.InvoiceFile,
+                PurchaseOrder = invoice.PurchaseOrder,
                 TotalAmount = invoice.TotalAmount,
                 CAE = invoice.Metadata?.CAE,
                 CAEExpirationDate = invoice.Metadata?.CAEExpirationDate,

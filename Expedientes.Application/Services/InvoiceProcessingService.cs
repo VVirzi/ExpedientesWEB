@@ -11,7 +11,7 @@ using Expedientes.Application.Mappers;
 
 namespace Expedientes.Application.Services
 {
-    public class InvoiceProcessingService
+    public class InvoiceProcessingService : IInvoiceProcessingService
     {
         private readonly IFileImporter<ImportedInvoice> _invoicesPresentedImporter;
         private readonly IFileImporter<InvoiceMetadata> _invoicesInformationImporter;
@@ -33,19 +33,19 @@ namespace Expedientes.Application.Services
             _anmatMerger = anmatMerger;
         }
         public InvoiceResultDto Process(
-            string invoicesPresentedPath,
-            string? invoicesInformationPath,
-            string? anmatPath)
+            Stream invoicesPresentedPath,
+            Stream? invoicesInformationPath,
+            Stream? anmatPath)
         {
             var result = new InvoiceProcessingResult();
             var invoices = _invoicesPresentedImporter.Import(invoicesPresentedPath);
 
-            if (!string.IsNullOrEmpty(invoicesInformationPath))
+            if (invoicesInformationPath != null)
             {
                 var metadata = _invoicesInformationImporter.Import(invoicesInformationPath);
                 _invoiceMetadataMerger.Merge(invoices, metadata);
             }
-            if (!string.IsNullOrEmpty(anmatPath))
+            if (anmatPath != null)
             {
                 var anmatData = _anmatImporter.Import(anmatPath);
                 _anmatMerger.Merge(invoices, anmatData);   
@@ -59,9 +59,9 @@ namespace Expedientes.Application.Services
         private List<ProcessingWarning> ValidateInvoices(List<ImportedInvoice> invoices)
         {
             var warnings = new List<ProcessingWarning>();
-            foreach (var invoice in invoices)
+            foreach (var invoice in invoices ?? Enumerable.Empty<ImportedInvoice>())
             {
-                foreach(var item in invoice.Items)
+                foreach(var item in invoice.Items ?? Enumerable.Empty<InvoiceItem>())
                 {
                     if (string.IsNullOrWhiteSpace(item.Gtin))
                     {

@@ -9,7 +9,7 @@ namespace Expedientes.Domain.Interfaces
 {
     public interface IFileImporter<T>
     {
-        bool CanHandle(string fileType);
-        List<T> Import(string fileStream);    
+        //bool CanHandle(string fileType);
+        List<T> Import(Stream fileStream);    
     }
 }

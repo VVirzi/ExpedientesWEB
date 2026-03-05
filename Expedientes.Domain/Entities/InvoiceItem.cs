@@ -13,7 +13,7 @@ namespace Expedientes.Domain.Entities
         public string Troquel {  get; set; }
         public string Lote { get; set; }
         public DateTime? ExpirationDate { get; set; }
-        public decimal Quantity { get; set; }
+        public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal Total => Quantity * UnitPrice;
         private readonly List<ItemTraceability> _traceabilities = new();

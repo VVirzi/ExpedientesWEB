@@ -1,4 +1,13 @@
+using Expedientes.Application.Mergin;
+using Expedientes.Application.Services;
+using Expedientes.Domain.Entities;
+using Expedientes.Domain.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IInvoiceProcessingService, InvoiceProcessingService>();
+builder.Services.AddScoped<IInvoiceMetadataMerger, InvoiceMetadataMerger>();
+builder.Services.AddScoped<IAnmatMerger, AnmatMerger>();
 
 // Add services to the container.
 
@@ -23,3 +32,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

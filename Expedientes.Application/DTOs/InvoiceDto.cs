@@ -9,10 +9,14 @@ namespace Expedientes.Application.DTOs
 {
     public class InvoiceDto
     {
+        public string InvoiceType { get; set; }
         public string InvoiceNumber { get; set; }
         public DateTime Date { get; set; }
         public string RemitoNumber { get; set; }
         public string AffiliateNumber { get; set; }
+        public string AffiliateName { get; set; }
+        public string PurchaseOrder {  get; set; }
+        public string InvoiceFile {  get; set; }
         public decimal TotalAmount { get; set; }
         public string? CAE { get; set; }
         public DateTime? CAEExpirationDate { get; set; }
