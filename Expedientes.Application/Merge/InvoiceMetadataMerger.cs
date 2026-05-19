@@ -15,19 +15,19 @@ namespace Expedientes.Application.Mergin
         {
             if (invoices == null || metadata == null) return;
 
-            var metadataDictionary = metadata
+            var metadataIndex = metadata
                 .Where(m => !string.IsNullOrWhiteSpace(m.InvoiceNumber))
                 .ToDictionary(
-                    m => m.InvoiceNumber, 
-                    m => m, 
+                    m => m.InvoiceNumber.Trim(), 
+                    m => m,     
                     StringComparer.OrdinalIgnoreCase);
 
             foreach ( var invoice in invoices)
             {
-                if (invoice == null || !string.IsNullOrWhiteSpace(invoice.InvoiceNumber)) continue;
+                if (invoice == null || string.IsNullOrWhiteSpace(invoice.InvoiceNumber)) continue;
                 
-                if(metadataDictionary.TryGetValue(
-                    invoice.InvoiceNumber, 
+                if(metadataIndex.TryGetValue(
+                    invoice.InvoiceNumber.Trim(), 
                     out var invoiceMetadata))
                 {
                     invoice.Metadata = new InvoiceMetadata

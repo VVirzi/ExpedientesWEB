@@ -44,11 +44,12 @@ namespace Expedientes.Application.Services
             {
                 var metadata = _invoicesInformationImporter.Import(invoicesInformationPath);
                 _invoiceMetadataMerger.Merge(invoices, metadata);
-            }
-            if (anmatPath != null)
-            {
-                var anmatData = _anmatImporter.Import(anmatPath);
-                _anmatMerger.Merge(invoices, anmatData);   
+            
+                if (anmatPath != null)
+                {
+                    var anmatData = _anmatImporter.Import(anmatPath);
+                    _anmatMerger.Merge(invoices, anmatData);   
+                }
             }
             result.Invoices = invoices;
             result.Warnings = ValidateInvoices(invoices);
@@ -61,25 +62,28 @@ namespace Expedientes.Application.Services
             var warnings = new List<ProcessingWarning>();
             foreach (var invoice in invoices ?? Enumerable.Empty<ImportedInvoice>())
             {
-                foreach(var item in invoice.Items ?? Enumerable.Empty<InvoiceItem>())
+                foreach(var remito in invoice.Remitos ?? Enumerable.Empty<InvoiceRemito>())
                 {
-                    if (string.IsNullOrWhiteSpace(item.Gtin))
+                    foreach( var item in remito.Items ?? Enumerable.Empty<InvoiceItem>())
                     {
-                        warnings.Add(new ProcessingWarning
+                        if (string.IsNullOrWhiteSpace(item.Gtin))
                         {
-                            InvoiceNumber = invoice.InvoiceNumber,
-                            ItemGtin = null,
-                            Message = "El item no tiene GTIN"
-                        });
-                    }
-                    if (string.IsNullOrWhiteSpace(item.Troquel))
-                    {
-                        warnings.Add(new ProcessingWarning
+                            warnings.Add(new ProcessingWarning
+                            {
+                                InvoiceNumber = invoice.InvoiceNumber,
+                                ItemGtin = null,
+                                Message = "El item no tiene GTIN"
+                            });
+                        }
+                        if (string.IsNullOrWhiteSpace(item.Troquel))
                         {
-                            InvoiceNumber = invoice.InvoiceNumber,
-                            ItemGtin = item.Gtin,
-                            Message = "El item no tiene Troquel"
-                        });
+                            warnings.Add(new ProcessingWarning
+                            {
+                                InvoiceNumber = invoice.InvoiceNumber,
+                                ItemGtin = item.Gtin,
+                                Message = "El item no tiene Troquel"
+                            });
+                        }
                     }
                 }
             }

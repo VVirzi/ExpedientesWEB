@@ -9,33 +9,30 @@ using Expedientes.Domain.Interfaces;
 
 namespace Expedientes.Domain.Importers
 {
-    public class HtmlImportedInvoiceImporter : IFileImporter<ImportedInvoice>
+    public class HtmlImportedInvoiceImporter : HtmlImporter, IFileImporter<ImportedInvoice>
     {
         private int InvoiceTypeIndex = 0;
         private int InvoiceNumberIndex = 1;
         private int DateIndex = 2;
         private int RemitoNumberIndex = 3;
         private int InvoiceFileIndex = 5;
-        private int AffiliateNameIndex = 13;
-        private int AffiliateNumberIndex = 14;
         private int PurchaseOrderIndex = 19;
         private int TotalAmountIndex = 16;
+        private int AffiliateNameIndex = 13;
+        private int AffiliateNumberIndex = 14;
         private int ArticleIndex = 9;
         private int QuantityIndex = 8;
         private int UnitPriceIndex = 12;
         public List<ImportedInvoice> Import(Stream fileStream)
         {
             var invoices = new Dictionary<string, ImportedInvoice>();
-            var doc = new HtmlDocument();
-            doc.Load(fileStream);
 
-            var table = doc.DocumentNode.SelectSingleNode("//table");
-            if (table == null)
-                throw new Exception("No se encontró ninguna tabla en el archivo HTML.");
+            var doc = LoadDocument(fileStream);
+            var table = GetTable(doc);
 
-            var rows = table.SelectNodes(".//tr");
+            var rows = table.SelectNodes(".//tr"); //Testear
             if (rows == null || rows.Count <= 1)
-                return invoices.Values.ToList(); //Testear
+                return invoices.Values.ToList(); 
 
             for (int i = 1; i < rows.Count; i++)
             {
@@ -57,38 +54,21 @@ namespace Expedientes.Domain.Importers
                         InvoiceType = Clean(cells[InvoiceTypeIndex].InnerText),
                         InvoiceNumber = invoiceId,
                         Date = date,
-                        RemitoNumber = Clean(cells[RemitoNumberIndex].InnerText),
                         InvoiceFile = Clean(cells[InvoiceFileIndex].InnerText),
                         AffiliateName = Clean(cells[AffiliateNameIndex].InnerText),
                         AffiliateNumber = Clean(cells[AffiliateNumberIndex].InnerText),
                         PurchaseOrder = Clean(cells[PurchaseOrderIndex].InnerText),
                         TotalAmount = ParseAmount(Clean(cells[TotalAmountIndex].InnerText)),
                     };
-                invoices.Add(invoiceId, invoice);
+                    invoices.Add(invoiceId, invoice);
                 }
-                invoice.AddOrUpdateItem(
-                    Clean(cells[ArticleIndex].InnerText), 
-                    ParseInt(Clean(cells[QuantityIndex].InnerText)), 
-                    ParseAmount(Clean(cells[UnitPriceIndex].InnerText)));
+                var remito = invoice.GetOrCreateRemito(Clean(cells[RemitoNumberIndex].InnerText));
+
+                var item = remito.GetOrCreateItem(Clean(cells[ArticleIndex].InnerText), null);
+                item.Quantity += ParseInt(Clean(cells[QuantityIndex].InnerText));
+                if (item.UnitPrice == 0) item.UnitPrice = ParseAmount(Clean(cells[UnitPriceIndex].InnerText));
             }
-
             return invoices.Values.ToList();
-        }
-        private string Clean(string value)
-        {
-            return HtmlEntity.DeEntitize(value)?.Trim() ?? string.Empty;
-        }
-
-        private decimal ParseAmount(string value)
-        {
-            value = value.Replace(".", "").Replace(",", ".");
-            decimal.TryParse(value, out decimal result);
-            return result;
-        }
-        private int ParseInt(string value)
-        {
-            int.TryParse(value.Replace(".", ""), out int result);
-            return result;
         }
     }
 }

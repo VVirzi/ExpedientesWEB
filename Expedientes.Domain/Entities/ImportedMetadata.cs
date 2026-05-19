@@ -6,19 +6,12 @@ using System.Threading.Tasks;
 
 namespace Expedientes.Domain.Entities
 {
-    public class ImportedInvoice
+    internal class ImportedMetadata
     {
-        public string InvoiceType { get; set; }
         public string InvoiceNumber { get; set; }
-        public DateTime Date {  get; set; }
-        public string AffiliateNumber { get; set; }
-        public string AffiliateName { get; set; }
-        public string PurchaseOrder {  get; set; }
-        public string InvoiceFile { get; set; }
-        public decimal TotalAmount { get; set; }
-        public InvoiceMetadata? Metadata { get; set; }
+        public string CAE { get; set; }
+        public DateTime? CAEExpirationDate { get; set; }
         public List<InvoiceRemito> Remitos { get; set; } = new();
-
         public InvoiceRemito GetOrCreateRemito(string remitoNumber)
         {
             var remito = Remitos.FirstOrDefault(r => r.RemitoNumber == remitoNumber);
@@ -29,10 +22,8 @@ namespace Expedientes.Domain.Entities
                 {
                     RemitoNumber = remitoNumber
                 };
-
                 Remitos.Add(remito);
             }
-
             return remito;
         }
     }

@@ -21,41 +21,41 @@ namespace Expedientes.Application.Mergin
                     !string.IsNullOrWhiteSpace(a.RemitoNumber) &&
                     !string.IsNullOrWhiteSpace(a.Gtin) &&
                     !string.IsNullOrWhiteSpace(a.Lote))
-                .GroupBy(
-                    a=> (
-                        a.RemitoNumber.Trim(),
-                        a.Gtin.Trim(),
-                        a.Lote.Trim()
-                    ))
+                .GroupBy(a=> (
+                    a.RemitoNumber.Trim(),
+                    a.Gtin.Trim(),
+                    a.Lote.Trim()))
                 .ToDictionary(
-                g => g.Key,
-                g => g.ToList());
+                    g => g.Key,
+                    g => g.ToList());
 
             foreach( var invoice in invoices )
             {
                 if( invoice == null ) continue;
-                foreach (var item in invoice.Items)
+                foreach( var remito in invoice.Remitos)
                 {
-                    if (string.IsNullOrWhiteSpace(invoice.RemitoNumber) ||
-                       string.IsNullOrWhiteSpace(item.Gtin) ||
-                       string.IsNullOrWhiteSpace(item.Lote)
-                        ) continue;
-                    var key = (
-                        invoice.RemitoNumber?.Trim(),
-                        item.Gtin?.Trim(),
-                        item.Lote?.Trim()
-                    );
-                    if (anmatDictionary.TryGetValue(key, out var matches))
+                    foreach (var item in remito.Items)
                     {
-                        foreach (var match in matches)
+                        if (string.IsNullOrWhiteSpace(remito.RemitoNumber) ||
+                           string.IsNullOrWhiteSpace(item.Gtin) ||
+                           string.IsNullOrWhiteSpace(item.Lote)
+                            ) continue;
+                        var key = (
+                            remito.RemitoNumber?.Trim(),
+                            item.Gtin?.Trim(),
+                            item.Lote?.Trim()
+                        );
+                        if (anmatDictionary.TryGetValue(key, out var matches))
                         {
-                            // Solo agregamos si tiene ID de transacción
-                            if (!string.IsNullOrWhiteSpace(match.IDTransction))
+                            foreach (var match in matches)
                             {
-                                item.AddTraceability(
-                                    match.IDTransction,
-                                    match.Serie
-                                );
+                                if (!string.IsNullOrWhiteSpace(match.IDTransction))
+                                {
+                                    item.AddTraceability(
+                                        match.IDTransction,
+                                        match.Serie
+                                    );
+                                }
                             }
                         }
                     }
