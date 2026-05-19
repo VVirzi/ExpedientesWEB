@@ -16,17 +16,15 @@ namespace Expedientes.Api
         }
 
         [HttpPost("process")]
-        public IActionResult Process(
-        IFormFile invoicesFile,
-        IFormFile? metadataFile,
-        IFormFile? anmatFile)
+        [Consumes("multipart/form-data")]
+        public IActionResult Process([FromForm] InvoiceProcessRequest request)
         {
-            if (invoicesFile == null || invoicesFile.Length == 0)
+            if (request.InvoicesFile == null || request.InvoicesFile.Length == 0)
                 return BadRequest("Debe enviar el archivo principal.");
 
-            using var invoicesStream = invoicesFile.OpenReadStream();
-            using var metadataStream = metadataFile?.OpenReadStream();
-            using var anmatStream = anmatFile?.OpenReadStream();
+            using var invoicesStream = request.InvoicesFile.OpenReadStream();
+            using var metadataStream = request.MetadataFile?.OpenReadStream();
+            using var anmatStream = request.AnmatFile?.OpenReadStream();
 
             var result = _invoiceProcessingService.Process(
                 invoicesStream,

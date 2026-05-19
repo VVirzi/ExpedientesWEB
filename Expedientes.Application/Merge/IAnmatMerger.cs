@@ -9,7 +9,7 @@ namespace Expedientes.Application.Mergin
 {
     public interface IAnmatMerger
     {
-        void Merge(
+        List<ProcessingWarning> Merge(
             List<ImportedInvoice> invoices,
             List<AnmatData> anmatData);
     }

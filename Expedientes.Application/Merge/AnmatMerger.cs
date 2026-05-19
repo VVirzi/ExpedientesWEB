@@ -10,18 +10,19 @@ namespace Expedientes.Application.Mergin
 {
     public class AnmatMerger : IAnmatMerger
     {
-        public void Merge(
+        public List<ProcessingWarning> Merge(
             List<ImportedInvoice> invoices,
             List<AnmatData> anmatData)
         {
-            if(invoices == null || anmatData == null) return;
+            var warnings = new List<ProcessingWarning>();
+            if (invoices == null || anmatData == null) return warnings;
 
             var anmatDictionary = anmatData.
                 Where(a =>
                     !string.IsNullOrWhiteSpace(a.RemitoNumber) &&
                     !string.IsNullOrWhiteSpace(a.Gtin) &&
                     !string.IsNullOrWhiteSpace(a.Lote))
-                .GroupBy(a=> (
+                .GroupBy(a => (
                     a.RemitoNumber.Trim(),
                     a.Gtin.Trim(),
                     a.Lote.Trim()))
@@ -29,10 +30,10 @@ namespace Expedientes.Application.Mergin
                     g => g.Key,
                     g => g.ToList());
 
-            foreach( var invoice in invoices )
+            foreach (var invoice in invoices)
             {
-                if( invoice == null ) continue;
-                foreach( var remito in invoice.Remitos)
+                if (invoice == null) continue;
+                foreach (var remito in invoice.Remitos)
                 {
                     foreach (var item in remito.Items)
                     {
@@ -61,6 +62,30 @@ namespace Expedientes.Application.Mergin
                     }
                 }
             }
+            var allGtinsInInvoices = invoices
+                .SelectMany(i => i.Remitos)
+                .SelectMany(r => r.Items)
+                .Where(item => !string.IsNullOrWhiteSpace(item.Gtin))
+                .Select(item => item.Gtin.Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var gtinsNotFound = anmatData
+                .Where(a => !string.IsNullOrWhiteSpace(a.Gtin) &&
+                            !allGtinsInInvoices.Contains(a.Gtin.Trim()))
+                .Select(a => a.Gtin.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var gtin in gtinsNotFound)
+            {
+                warnings.Add(new ProcessingWarning
+                {
+                    InvoiceNumber = null,
+                    ItemGtin = gtin,
+                    Message = $"El GTIN {gtin} existe en ANMAT pero no fue encontrado en ninguna factura."
+                });
+            }
+
+            return warnings;
         }
     }
 }

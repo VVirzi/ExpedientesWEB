@@ -48,7 +48,8 @@ namespace Expedientes.Application.Services
                 if (anmatPath != null)
                 {
                     var anmatData = _anmatImporter.Import(anmatPath);
-                    _anmatMerger.Merge(invoices, anmatData);   
+                    var anmatWarnings = _anmatMerger.Merge(invoices, anmatData);
+                    result.Warnings.AddRange(anmatWarnings);
                 }
             }
             result.Invoices = invoices;

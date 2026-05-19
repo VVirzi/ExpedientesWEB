@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Expedientes.Application\Expedientes.Application.csproj" />
+    <ProjectReference Include="..\Expedientes.Infrastructure\Expedientes.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

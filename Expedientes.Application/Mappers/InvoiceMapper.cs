@@ -31,7 +31,7 @@ namespace Expedientes.Application.Mappers
                 InvoiceType = invoice.InvoiceType,
                 InvoiceNumber = invoice.InvoiceNumber,
                 Date = invoice.Date,
-                RemitoNumber = invoice.RemitoNumber,
+                RemitoNumber = invoice.Remitos.FirstOrDefault()?.RemitoNumber ?? string.Empty,
                 AffiliateNumber = invoice.AffiliateNumber,
                 AffiliateName = invoice.AffiliateName,
                 InvoiceFile = invoice.InvoiceFile,
@@ -39,7 +39,10 @@ namespace Expedientes.Application.Mappers
                 TotalAmount = invoice.TotalAmount,
                 CAE = invoice.Metadata?.CAE,
                 CAEExpirationDate = invoice.Metadata?.CAEExpirationDate,
-                Items = invoice.Items.Select(ToDto).ToList()
+                Items = invoice.Remitos
+                    .SelectMany(r => r.Items)
+                    .Select(ToDto)
+                    .ToList()
             };
         }
 

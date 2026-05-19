@@ -55,9 +55,23 @@ namespace Expedientes.Domain.Importers
                     };
                     invoices.Add(invoiceId, invoice);
                 }
-                //Añadir los items al remito.
-                //¿Debo crear una class RemitoMetadata o con la class InvoiceRemito está bien?
-                //Datos a añadir: RemitoNumber, Article, Gtin, Troquel, Quantity, UnitPrice y Lote.
+                
+                string remitoNumber = Clean(cells[RemitoNumberIndex].InnerText);
+                var remito = invoice.GetOrCreateRemito(remitoNumber);
+
+                string article = Clean(cells[ArticleIndex].InnerText);
+                string lote = Clean(cells[LoteIndex].InnerText);
+                var item = remito.GetOrCreateItem(article, lote);
+
+                item.Gtin = "0" + Clean(cells[GtinIndex].InnerText);
+                item.Troquel = Clean(cells[TroquelIndex].InnerText);
+                item.Quantity += ParseInt(Clean(cells[QuantityIndex].InnerText));
+                if (item.UnitPrice == 0)
+                    item.UnitPrice = ParseAmount(Clean(cells[UnitPriceIndex].InnerText));
+
+                if (!item.ExpirationDate.HasValue &&
+                    DateTime.TryParse(Clean(cells[ExpirationDateIndex].InnerText), out DateTime exp))
+                    item.ExpirationDate = exp;
             }
             return invoices.Values.ToList();
         }

@@ -11,5 +11,17 @@ namespace Expedientes.Domain.Entities
         public string InvoiceNumber { get; set; }
         public string CAE { get; set; }
         public DateTime? CAEExpirationDate { get; set; }
+        public List<InvoiceRemito> Remitos { get; set; } = new ();
+
+        public InvoiceRemito GetOrCreateRemito(string remitoNumber)
+        {
+            var remito = Remitos.FirstOrDefault(r => r.RemitoNumber == remitoNumber);
+            if (remito == null)
+            {
+                remito = new InvoiceRemito { RemitoNumber = remitoNumber };
+                Remitos.Add(remito);
+            }
+            return remito;
+        }
     }
 }

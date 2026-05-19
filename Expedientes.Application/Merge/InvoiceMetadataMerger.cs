@@ -10,34 +10,61 @@ namespace Expedientes.Application.Mergin
     public class InvoiceMetadataMerger: IInvoiceMetadataMerger
     {
         public void Merge(
-            List<ImportedInvoice> invoices,
+            List<ImportedInvoice> invoices, 
             List<InvoiceMetadata> metadata)
         {
             if (invoices == null || metadata == null) return;
 
-            var metadataIndex = metadata
-                .Where(m => !string.IsNullOrWhiteSpace(m.InvoiceNumber))
-                .ToDictionary(
-                    m => m.InvoiceNumber.Trim(), 
-                    m => m,     
-                    StringComparer.OrdinalIgnoreCase);
-
-            foreach ( var invoice in invoices)
+            foreach (var invoice in invoices)
             {
-                if (invoice == null || string.IsNullOrWhiteSpace(invoice.InvoiceNumber)) continue;
-                
-                if(metadataIndex.TryGetValue(
-                    invoice.InvoiceNumber.Trim(), 
-                    out var invoiceMetadata))
+                var invoiceMetadata = metadata.FirstOrDefault(m =>
+                    string.Equals(m.InvoiceNumber?.Trim(),
+                                  invoice.InvoiceNumber?.Trim(),
+                                  StringComparison.OrdinalIgnoreCase));
+
+                if (invoiceMetadata == null) continue;
+
+                invoice.Metadata = new InvoiceMetadata
                 {
-                    invoice.Metadata = new InvoiceMetadata
+                    InvoiceNumber = invoiceMetadata.InvoiceNumber,
+                    CAE = invoiceMetadata.CAE,
+                    CAEExpirationDate = invoiceMetadata.CAEExpirationDate
+                };
+
+                foreach (var remito in invoice.Remitos)
+                {
+                    var metadataRemito = invoiceMetadata.Remitos.FirstOrDefault(r =>
+                        RemitoMatches(remito.RemitoNumber, r.RemitoNumber));
+
+                    if (metadataRemito == null) continue;
+
+                    foreach (var item in remito.Items)
                     {
-                        InvoiceNumber = invoiceMetadata.InvoiceNumber,
-                        CAE = invoiceMetadata.CAE,
-                        CAEExpirationDate = invoiceMetadata.CAEExpirationDate
-                    };
+                        var metadataItem = metadataRemito.Items.FirstOrDefault(i =>
+                            string.Equals(i.Article?.Trim(),
+                                          item.Article?.Trim(),
+                                          StringComparison.OrdinalIgnoreCase));
+
+                        if (metadataItem == null) continue;
+
+                        item.Gtin = metadataItem.Gtin;
+                        item.Troquel = metadataItem.Troquel;
+                        item.Lote = metadataItem.Lote;
+                        item.ExpirationDate = metadataItem.ExpirationDate;
+                    }
                 }
             }
+        }
+
+        private bool RemitoMatches(string invoiceRemito, string metadataRemito)
+        {
+            if (string.IsNullOrWhiteSpace(invoiceRemito) ||
+                string.IsNullOrWhiteSpace(metadataRemito)) return false;
+
+            var metaNormalized = metadataRemito.Trim();
+
+            return invoiceRemito.Trim().EndsWith(metaNormalized,
+                StringComparison.OrdinalIgnoreCase);
         }
     }
 }
