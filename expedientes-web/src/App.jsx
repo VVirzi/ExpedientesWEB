@@ -1,8 +1,16 @@
+import { Routes, Route, Navigate } from "react-router-dom"
+import ClientSelectionPage from "./pages/ClientSelectionPage"
+import FileUploadPage from "./pages/FileUploadPage"
+import InvoiceReviewPage from "./pages/InvoiceReviewPage"
+
 function App() {
   return (
-    <div>
-      <h1>Expedientes Web</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<ClientSelectionPage />} />
+      <Route path="/upload" element={<FileUploadPage />} />
+      <Route path="/review" element={<InvoiceReviewPage />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   )
 }
 
