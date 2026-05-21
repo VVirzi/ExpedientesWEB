@@ -49,6 +49,10 @@ namespace Expedientes.Domain.Importers
                 {
                     DateTime.TryParse(Clean(cells[DateIndex].InnerText), out DateTime date);
 
+                    var purchaseOrder = Clean(cells[PurchaseOrderIndex].InnerText);
+                    if (string.IsNullOrWhiteSpace(purchaseOrder))
+                        purchaseOrder = Clean(cells[InvoiceFileIndex].InnerText);
+
                     invoice = new ImportedInvoice
                     {
                         InvoiceType = Clean(cells[InvoiceTypeIndex].InnerText),
@@ -57,7 +61,7 @@ namespace Expedientes.Domain.Importers
                         InvoiceFile = Clean(cells[InvoiceFileIndex].InnerText),
                         AffiliateName = Clean(cells[AffiliateNameIndex].InnerText),
                         AffiliateNumber = Clean(cells[AffiliateNumberIndex].InnerText),
-                        PurchaseOrder = Clean(cells[PurchaseOrderIndex].InnerText),
+                        PurchaseOrder = purchaseOrder,
                         TotalAmount = ParseAmount(Clean(cells[TotalAmountIndex].InnerText)),
                     };
                     invoices.Add(invoiceId, invoice);

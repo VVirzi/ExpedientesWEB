@@ -12,7 +12,7 @@ namespace Expedientes.Domain.Importers
         protected HtmlDocument LoadDocument(Stream stream)
         {
             var doc = new HtmlDocument();
-            doc.Load(stream);
+            doc.Load(stream, System.Text.Encoding.Latin1);
             return doc;
         }
 

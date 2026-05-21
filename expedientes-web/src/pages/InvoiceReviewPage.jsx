@@ -36,6 +36,20 @@ export default function InvoiceReviewPage() {
     }
   }
 
+  function handleInvoiceEdit(invoiceNumber, field, value) {
+    setInvoiceResult(prev => ({
+      ...prev,
+      invoices: prev.invoices.map(invoice => {
+        if (invoice.invoiceNumber !== invoiceNumber) return invoice
+        return { ...invoice, [field]: value }
+      })
+    }))
+
+    if (selectedInvoice?.invoiceNumber === invoiceNumber) {
+      setSelectedInvoice(prev => ({ ...prev, [field]: value }))
+    }
+  }
+
   function handleRowClick(invoice) {
     setSelectedInvoice(
       selectedInvoice?.invoiceNumber === invoice.invoiceNumber ? null : invoice
@@ -80,7 +94,7 @@ export default function InvoiceReviewPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {["Tipo", "Número", "Fecha", "Remito", "Afiliado", "Total", "CAE"].map(h => (
+                {["Tipo", "Número", "Fecha", "Remito", "Afiliado", "Nº Afiliado", "O. Compra", "Total", "CAE"].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     {h}
                   </th>
@@ -104,7 +118,24 @@ export default function InvoiceReviewPage() {
                     {new Date(invoice.date).toLocaleDateString("es-AR")}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{invoice.remitoNumber}</td>
-                  <td className="px-4 py-3 text-gray-600">{invoice.affiliateName}</td>
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <EditableCell
+                      value={invoice.affiliateName}
+                      onChange={v => handleInvoiceEdit(invoice.invoiceNumber, "affiliateName", v)}
+                    />
+                  </td>
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <EditableCell
+                      value={invoice.affiliateNumber}
+                      onChange={v => handleInvoiceEdit(invoice.invoiceNumber, "affiliateNumber", v)}
+                    />
+                  </td>
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <EditableCell
+                      value={invoice.purchaseOrder}
+                      onChange={v => handleInvoiceEdit(invoice.invoiceNumber, "purchaseOrder", v)}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-gray-600">
                     ${invoice.totalAmount.toLocaleString("es-AR")}
                   </td>
@@ -170,6 +201,7 @@ export default function InvoiceReviewPage() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   )
