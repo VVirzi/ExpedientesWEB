@@ -3,21 +3,21 @@ import { useInvoice } from "../context/InvoiceContext"
 
 const CLIENTS = [
   {
-    id: "client1",
+    id: "ClientA",
     name: "Cliente 1",
     description: "Exporta QR",
     requiredFiles: ["invoices", "metadata"]
   },
   {
-    id: "client2",
+    id: "ClientB",
     name: "Cliente 2",
-    description: "Exporta TXT",
+    description: "Exporta TXT + TXT",
     requiredFiles: ["invoices", "metadata"]
   },
   {
-    id: "client3",
+    id: "ClientC",
     name: "Cliente 3",
-    description: "Exporta TXT + TXT",
+    description: "Exporta TXT",
     requiredFiles: ["invoices", "metadata", "anmat"]
   }
 ]

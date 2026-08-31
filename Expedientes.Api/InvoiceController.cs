@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Expedientes.Application.Services;
 using Expedientes.Application.DTOs;
+using Expedientes.Application.Exporters;
 
 namespace Expedientes.Api
 {
@@ -9,10 +10,14 @@ namespace Expedientes.Api
     public class InvoiceController : ControllerBase
     {
         private readonly IInvoiceProcessingService _invoiceProcessingService;
+        private readonly IEnumerable<IInvoiceExporter> _exporters;
 
-        public InvoiceController(IInvoiceProcessingService processingService)
+        public InvoiceController(
+            IInvoiceProcessingService processingService,
+            IEnumerable<IInvoiceExporter> exporters)
         {
             _invoiceProcessingService = processingService;
+            _exporters = exporters;
         }
 
         [HttpPost("process")]
@@ -32,6 +37,31 @@ namespace Expedientes.Api
                 anmatStream);
 
             return Ok(result);
+        }
+
+        [HttpPost("export")]
+        public IActionResult Export([FromBody] ExportRequest request)
+        {
+            if (request == null)
+                return BadRequest("Request es null.");
+
+
+            var exporter = _exporters.FirstOrDefault(e =>
+                e.ClientId == request.ClientId &&
+                e.ExportType == request.ExportType);
+
+            if (exporter == null)
+                return BadRequest($"Exportador no encontrado.");
+
+            var fileBytes = exporter.Export(request.Result);
+
+            string contentType = request.ExportType == "pdf"
+                ? "application/pdf"
+                : "text/plain";
+
+            string fileName = $"export_{request.ClientId}_{request.ExportType}_{DateTime.Now:yyyyMMdd}.{(request.ExportType == "pdf" ? "pdf" : "txt")}";
+
+            return File(fileBytes, contentType, fileName);
         }
     }
 }

@@ -8,10 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="itext" Version="9.7.0" />
+    <PackageReference Include="itext.bouncy-castle-adapter" Version="9.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.8" />
+    <PackageReference Include="ZXing.Net" Version="0.16.11" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Expedientes.Application\Expedientes.Application.csproj" />
     <ProjectReference Include="..\Expedientes.Domain\Expedientes.Domain.csproj" />
   </ItemGroup>
 
