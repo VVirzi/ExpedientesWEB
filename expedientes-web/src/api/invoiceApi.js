@@ -14,3 +14,24 @@ export async function processInvoices(invoicesFile, metadataFile, anmatFile) {
 
   return response.data
 }
+
+export async function exportInvoices(clientId, exportType, invoiceResult) {
+  const response = await axios.post(
+    `${API_URL}/export`,
+    {
+      clientId,
+      exportType,
+      result: invoiceResult
+    },
+    { responseType: "blob" }
+  )
+
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement("a")
+  link.href = url
+  link.setAttribute("download", `export_${clientId}_${exportType}.pdf`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}

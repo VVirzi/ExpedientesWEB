@@ -4,6 +4,8 @@ using Expedientes.Domain.Entities;
 using Expedientes.Domain.Importers;
 using Expedientes.Domain.Interfaces;
 using Expedientes.Infrastructure.Importers;
+using Expedientes.Application.Exporters;
+using Expedientes.Infrastructure.Pdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +19,27 @@ builder.Services.AddScoped<IInvoiceProcessingService, InvoiceProcessingService>(
 builder.Services.AddScoped<IInvoiceMetadataMerger, InvoiceMetadataMerger>();
 builder.Services.AddScoped<IAnmatMerger, AnmatMerger>();
 
+// Exporters
+builder.Services.AddScoped<IQrPdfExporter, QrPdfExporter>();
+builder.Services.AddScoped<IInvoiceExporter, ClientAExporter>();
+
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = int.MaxValue;
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = int.MaxValue;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

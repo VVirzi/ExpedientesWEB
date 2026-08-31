@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInvoice } from "../context/InvoiceContext"
+import { exportInvoices } from "../api/invoiceApi"
 
 export default function InvoiceReviewPage() {
   const { invoiceResult, setInvoiceResult, selectedClient } = useInvoice()
@@ -73,7 +74,7 @@ export default function InvoiceReviewPage() {
               Volver
             </button>
             <button
-              onClick={() => navigate("/export")}
+              onClick={() => exportInvoices(selectedClient.id, "pdf", invoiceResult)}
               className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
             >
               Exportar
@@ -137,7 +138,7 @@ export default function InvoiceReviewPage() {
                     />
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    ${invoice.totalAmount.toLocaleString("es-AR")}
+                    ${(invoice.totalAmount / 100).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="px-4 py-3 text-gray-500 font-mono text-xs">{invoice.cae}</td>
                 </tr>
