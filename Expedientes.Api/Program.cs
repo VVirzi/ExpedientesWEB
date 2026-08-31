@@ -22,6 +22,9 @@ builder.Services.AddScoped<IAnmatMerger, AnmatMerger>();
 // Exporters
 builder.Services.AddScoped<IQrPdfExporter, QrPdfExporter>();
 builder.Services.AddScoped<IInvoiceExporter, ClientAExporter>();
+builder.Services.AddScoped<IInvoiceExporter, ClientBBillingExporter>();
+builder.Services.AddScoped<IInvoiceExporter, ClientBSettlementsExporter>();
+builder.Services.AddScoped<IInvoiceExporter, ClientCExporter>();
 
 // Add services to the container.
 

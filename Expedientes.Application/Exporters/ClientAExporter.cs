@@ -52,15 +52,15 @@ namespace Expedientes.Application.Exporters
             return rto.Length > 12 ? rto.Substring(rto.Length - 12) : rto;
         }
 
-        private string FormatInvoice(string factura)
+        private string FormatInvoice(string invoice)
         {
-            string fc = (factura ?? "").Replace("-", "");
+            string fc = (invoice ?? "").Replace("-", "");
             return fc.PadLeft(12, '0');
         }
 
-        private string FormatAmount(decimal importe)
+        private string FormatAmount(decimal price)
         {
-            string raw = ((long)(importe)).ToString();
+            string raw = ((long)(price)).ToString();
             return raw.Length > 9 ? raw.Substring(raw.Length - 9) : raw.PadLeft(9, '0');
         }
 
@@ -69,9 +69,9 @@ namespace Expedientes.Application.Exporters
             return date.HasValue ? date.Value.ToString("ddMMyyyy") : string.Empty;
         }
 
-        private string FormatPurchaseOrder(string oc)
+        private string FormatPurchaseOrder(string purchaseOrder)
         {
-            string cleaned = (oc ?? "").Replace("/", "");
+            string cleaned = (purchaseOrder ?? "").Replace("/", "");
             return cleaned.Length < 10 ? cleaned.PadLeft(10, '0') : cleaned;
         }
     }

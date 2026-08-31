@@ -7,6 +7,7 @@ export default function InvoiceReviewPage() {
   const { invoiceResult, setInvoiceResult, selectedClient } = useInvoice()
   const navigate = useNavigate()
   const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [showExportOptions, setShowExportOptions] = useState(false)
 
   if (!invoiceResult) {
     navigate("/")
@@ -73,12 +74,50 @@ export default function InvoiceReviewPage() {
             >
               Volver
             </button>
-            <button
-              onClick={() => exportInvoices(selectedClient.id, "pdf", invoiceResult)}
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
-            >
-              Exportar
-            </button>
+
+            {selectedClient?.id === "ClientB" ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowExportOptions(!showExportOptions)}
+                  className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
+                >
+                  Exportar ▾
+                </button>
+                {showExportOptions && (
+                  <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
+                    <button
+                      onClick={() => {
+                        exportInvoices("ClientB", "billing", invoiceResult)
+                        setShowExportOptions(false)
+                      }}
+                      className="block w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 transition"
+                    >
+                      Facturación
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportInvoices("ClientB", "settlements", invoiceResult)
+                        setShowExportOptions(false)
+                      }}
+                      className="block w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 transition border-t border-gray-100"
+                    >
+                      Liquidaciones
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => exportInvoices(
+                  selectedClient?.id,
+                  selectedClient?.id === "ClientA" ? "pdf" : "txt",
+                  invoiceResult
+                )}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
+              >
+                Exportar
+              </button>
+            )}
           </div>
         </div>
 
