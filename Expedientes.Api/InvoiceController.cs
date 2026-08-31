@@ -45,17 +45,13 @@ namespace Expedientes.Api
             if (request == null)
                 return BadRequest("Request es null.");
 
-            // Log temporal
-            var registered = string.Join(", ", _exporters.Select(e => $"{e.ClientId}/{e.ExportType}"));
-            Console.WriteLine($"Exportadores registrados: {registered}");
-            Console.WriteLine($"Buscando: clientId='{request.ClientId}' exportType='{request.ExportType}'");
 
             var exporter = _exporters.FirstOrDefault(e =>
                 e.ClientId == request.ClientId &&
                 e.ExportType == request.ExportType);
 
             if (exporter == null)
-                return BadRequest($"Exportador no encontrado. Registrados: [{registered}]");
+                return BadRequest($"Exportador no encontrado.");
 
             var fileBytes = exporter.Export(request.Result);
 
