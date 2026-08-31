@@ -8,6 +8,8 @@ export default function InvoiceReviewPage() {
   const navigate = useNavigate()
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [showExportOptions, setShowExportOptions] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState(null)
 
   if (!invoiceResult) {
     navigate("/")
@@ -58,6 +60,18 @@ export default function InvoiceReviewPage() {
     )
   }
 
+  async function handleExport(clientId, exportType) {
+    setExporting(true)
+    setExportError(null)
+    try {
+      await exportInvoices(clientId, exportType, invoiceResult)
+    } catch (err) {
+      setExportError("Error al exportar. Verificá que los datos sean correctos.")
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -79,15 +93,16 @@ export default function InvoiceReviewPage() {
               <div className="relative">
                 <button
                   onClick={() => setShowExportOptions(!showExportOptions)}
-                  className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
+                  disabled={exporting}
+                  className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 transition text-sm"
                 >
-                  Exportar ▾
+                  {exporting ? "Exportando..." : "Exportar ▾"}
                 </button>
                 {showExportOptions && (
                   <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
                     <button
                       onClick={() => {
-                        exportInvoices("ClientB", "billing", invoiceResult)
+                        handleExport("ClientB", "billing")
                         setShowExportOptions(false)
                       }}
                       className="block w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 transition"
@@ -96,7 +111,7 @@ export default function InvoiceReviewPage() {
                     </button>
                     <button
                       onClick={() => {
-                        exportInvoices("ClientB", "settlements", invoiceResult)
+                        handleExport("ClientB", "settlements")
                         setShowExportOptions(false)
                       }}
                       className="block w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 transition border-t border-gray-100"
@@ -108,18 +123,24 @@ export default function InvoiceReviewPage() {
               </div>
             ) : (
               <button
-                onClick={() => exportInvoices(
+                onClick={() => handleExport(
                   selectedClient?.id,
-                  selectedClient?.id === "ClientA" ? "pdf" : "txt",
-                  invoiceResult
+                  selectedClient?.id === "ClientA" ? "pdf" : "txt"
                 )}
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm"
+                disabled={exporting}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 transition text-sm"
               >
-                Exportar
+                {exporting ? "Exportando..." : "Exportar"}
               </button>
             )}
           </div>
         </div>
+
+        {exportError && (
+          <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-sm text-red-600">{exportError}</p>
+          </div>
+        )}
 
         {invoiceResult.warnings.length > 0 && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
