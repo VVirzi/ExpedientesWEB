@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInvoice } from "../context/InvoiceContext"
 import { processInvoices } from "../api/invoiceApi"
 import PageTransition from "../components/common/PageTransition"
+
 
 export default function FileUploadPage() {
   const { selectedClient, setInvoiceResult } = useInvoice()
@@ -15,10 +16,13 @@ export default function FileUploadPage() {
   const [error, setError] = useState(null)
   const [transitionTrigger, setTransitionTrigger] = useState(0)
 
-  if (!selectedClient) {
-    navigate("/")
-    return null
-  }
+  useEffect(() => {
+    if (!selectedClient) {
+      navigate("/")
+    }
+  }, [selectedClient])
+
+  if (!selectedClient) return null
 
   const needsAnmat = selectedClient.requiredFiles.includes("anmat")
 

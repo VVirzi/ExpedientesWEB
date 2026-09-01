@@ -4,7 +4,7 @@ A web-based migration of a desktop (WinForms) application used internally to pro
 
 ## Overview
 
-The application processes invoice files exported from an internal ERP system, enriches them with metadata and ANMAT traceability data, allows manual review and editing, and exports the result in client-specific formats (PDF with QR codes, fixed-width TXT files).
+The application processes invoice files exported from an internal ERP system, enriches them with metadata and ANMAT traceability data, allows manual review and inline editing, and exports the result in client-specific formats (PDF with QR codes, fixed-width TXT files).
 
 ## Tech Stack
 
@@ -12,7 +12,7 @@ The application processes invoice files exported from an internal ERP system, en
 - ASP.NET Core Web API (.NET 8)
 - Clean Architecture (Api / Application / Domain / Infrastructure)
 - HtmlAgilityPack — HTML invoice parsing
-- iText7 — PDF generation
+- iText — PDF generation
 - ZXing.Net — QR code generation
 
 **Frontend**
@@ -20,28 +20,28 @@ The application processes invoice files exported from an internal ERP system, en
 - React Router DOM
 - Tailwind CSS v4
 - Axios
+- canvas-confetti
 
 ## Architecture
 
 The solution is structured following Clean Architecture principles:
-
-```
 ExpedientesWEB/
-├── Expedientes.Api             # Controllers, DTOs, request/response models
-├── Expedientes.Application     # Services, mergers, exporters, mappers
-├── Expedientes.Domain          # Entities, interfaces
-├── Expedientes.Infrastructure  # File importers, PDF generation
-└── expedientes-web/            # React frontend
-```
+├── Expedientes.Api # Controllers, DTOs, request/response models
+├── Expedientes.Application # Services, mergers, exporters, mappers
+├── Expedientes.Domain # Entities, interfaces
+├── Expedientes.Infrastructure # File importers, PDF/QR generation
+└── expedientes-web/ # React frontend
 
 ## Features
 
 - **Multi-client support** — each client has specific file requirements and export formats
 - **Three-file import pipeline** — invoices, metadata and ANMAT traceability files
 - **Automatic data enrichment** — GTIN, Troquel, Lote and traceability data merged automatically
+- **Company filter** — ANMAT file filtered by company name via appsettings.json
 - **Inline editing** — affiliate number, purchase order and item fields editable before export
 - **Warning system** — alerts for missing GTIN, Troquel or unmatched ANMAT records
 - **Client-specific export** — PDF/QR, billing TXT and settlements TXT formats
+- **Claymorphism UI** — custom design system with lavender palette and smooth animations
 
 ## How It Works
 
@@ -71,4 +71,4 @@ The API runs on `https://localhost:7249` and the frontend on `http://localhost:5
 
 ## Status
 
-Actively under development — export functionality in progress.
+Actively in use in production.

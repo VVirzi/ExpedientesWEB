@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInvoice } from "../context/InvoiceContext"
 import { exportInvoices } from "../api/invoiceApi"
 import confetti from "canvas-confetti"
+
 
 export default function InvoiceReviewPage() {
   const { invoiceResult, setInvoiceResult, selectedClient } = useInvoice()
@@ -12,10 +13,13 @@ export default function InvoiceReviewPage() {
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState(null)
 
-  if (!invoiceResult) {
-    navigate("/")
-    return null
-  }
+  useEffect(() => {
+    if (!invoiceResult) {
+      navigate("/")
+    }
+  }, [invoiceResult])
+
+  if (!invoiceResult) return null
 
   function handleItemEdit(invoiceNumber, itemIndex, field, value) {
     setInvoiceResult(prev => ({
