@@ -38,20 +38,52 @@ namespace Expedientes.Application.Mergin
 
                     if (metadataRemito == null) continue;
 
+                    var expandedItems = new List<InvoiceItem>();
+
                     foreach (var item in remito.Items)
                     {
-                        var metadataItem = metadataRemito.Items.FirstOrDefault(i =>
-                            string.Equals(i.Article?.Trim(),
-                                          item.Article?.Trim(),
-                                          StringComparison.OrdinalIgnoreCase));
+                        var metadataItems = metadataRemito.Items
+                            .Where(i => string.Equals(i.Article?.Trim(),
+                                                      item.Article?.Trim(),
+                                                      StringComparison.OrdinalIgnoreCase))
+                            .ToList();
 
-                        if (metadataItem == null) continue;
+                        if (!metadataItems.Any())
+                        {
+                            expandedItems.Add(item);
+                            continue;
+                        }
 
-                        item.Gtin = metadataItem.Gtin;
-                        item.Troquel = metadataItem.Troquel;
-                        item.Lote = metadataItem.Lote;
-                        item.ExpirationDate = metadataItem.ExpirationDate;
+                        if (metadataItems.Count == 1)
+                        {
+                            var meta = metadataItems[0];
+                            item.Gtin = meta.Gtin;
+                            item.Troquel = meta.Troquel;
+                            item.Lote = meta.Lote;
+                            item.ExpirationDate = meta.ExpirationDate;
+                            expandedItems.Add(item);
+                            continue;
+                        }
+
+                        foreach (var meta in metadataItems)
+                        {
+                            var newItem = new InvoiceItem
+                            {
+                                Article = item.Article,
+                                Gtin = meta.Gtin,
+                                Troquel = meta.Troquel,
+                                Lote = meta.Lote,
+                                ExpirationDate = meta.ExpirationDate,
+                                Quantity = (int)meta.Quantity,
+                                UnitPrice = meta.UnitPrice > 0 ? meta.UnitPrice : item.UnitPrice
+                            };
+                            expandedItems.Add(newItem);
+                        }
                     }
+
+                    remito.Items.Clear();
+                    foreach (var expanded in expandedItems)
+                        remito.Items.Add(expanded);
                 }
             }
         }
@@ -61,10 +93,13 @@ namespace Expedientes.Application.Mergin
             if (string.IsNullOrWhiteSpace(invoiceRemito) ||
                 string.IsNullOrWhiteSpace(metadataRemito)) return false;
 
-            var metaNormalized = metadataRemito.Trim();
+            /*var metaNormalized = metadataRemito.Trim();
 
             return invoiceRemito.Trim().EndsWith(metaNormalized,
+                StringComparison.OrdinalIgnoreCase);*/
+            var normalized = invoiceRemito.Trim().EndsWith(metadataRemito.Trim(),
                 StringComparison.OrdinalIgnoreCase);
+            return normalized;
         }
     }
 }
